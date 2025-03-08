@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: FleurDeLeah;
+    src: url('fonts/FleurDeLeah-Regular.ttf');
+}
+
+@font-face {
+    font-family: Nunito;
+    src: url('fonts/Nunito-VariableFont_wght.ttf');
+}
