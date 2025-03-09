@@ -57,7 +57,7 @@ const router = useRouter();
 onMounted(async () => {
   try {
     const response = await axios.get(`${API_URL}/languages/`);
-    languages.value = response.data.results;
+    languages.value = response.data;
   } catch (error) {
     console.error('Ошибка при загрузке языков', error);
   }

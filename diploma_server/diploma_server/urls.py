@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from apps.dictionary.views import DictionaryViewSet, FavoriteWordViewSet, CollectionViewSet
+from apps.dictionary.views import DictionaryViewSet, FavoriteWordViewSet, CollectionViewSet, CategoryViewSet, \
+    PartOfSpeechViewSet
 from apps.language.views import LanguageListView
 from apps.library.views import LibraryViewSet, FavoriteBookViewSet
 from apps.user.views import RegisterView, LanguageUpdateView
@@ -10,6 +11,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 router = DefaultRouter()
+router.register(r'categories', CategoryViewSet, basename='categories')
+router.register(r'parts-of-speech', PartOfSpeechViewSet, basename='parts-of-speech')
 router.register(r'dictionary', DictionaryViewSet, basename='dictionary')
 router.register(r'library', LibraryViewSet, basename='library')
 router.register(r'favoriteWords', FavoriteWordViewSet, basename='favoriteWords')

@@ -29,7 +29,7 @@ class TranslationSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'audio', 'language', 'word')
 
 class FavoriteWordSerializer(serializers.ModelSerializer):
-    translation = TranslationSerializer(read_only=True)
+    translation = serializers.PrimaryKeyRelatedField(queryset=Translation.objects.all())
 
     class Meta:
         model = FavoriteWord
@@ -44,7 +44,7 @@ class CollectionSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'description', 'language', 'is_public')
 
 class WordInCollectionSerializer(serializers.ModelSerializer):
-    translation = TranslationSerializer(read_only=True)
+    translation = serializers.PrimaryKeyRelatedField(queryset=Translation.objects.all())
 
     class Meta:
         model = WordInCollection

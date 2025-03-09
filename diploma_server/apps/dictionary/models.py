@@ -31,6 +31,9 @@ class Translation(models.Model):
     def __str__(self):
         return f"{self.word.text} - {self.text}"
 
+    class Meta:
+        ordering = ['id']
+
 class FavoriteWord(models.Model):
     user = models.ForeignKey('user.User', on_delete=models.CASCADE)
     translation = models.ForeignKey(Translation, on_delete=models.CASCADE)

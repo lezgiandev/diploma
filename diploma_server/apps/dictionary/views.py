@@ -1,13 +1,33 @@
-from rest_framework import viewsets, filters, serializers, status
+from rest_framework import viewsets, filters, serializers, status, response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import Translation, FavoriteWord, Collection, WordInCollection
+from .models import Translation, FavoriteWord, Collection, WordInCollection, Category, PartOfSpeech
 from .serializers import TranslationSerializer, FavoriteWordSerializer, CollectionSerializer, \
-    AddWordToCollectionSerializer, WordInCollectionSerializer
+    AddWordToCollectionSerializer, WordInCollectionSerializer, CategorySerializer, PartOfSpeechSerializer
 from apps.user.models import User
 
+
+class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)
+
+class PartOfSpeechViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = PartOfSpeech.objects.all()
+    serializer_class = PartOfSpeechSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)
 
 class DictionaryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TranslationSerializer
@@ -18,7 +38,7 @@ class DictionaryViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         if isinstance(self.request.user, User) and hasattr(self.request.user, 'language'):
-            return Translation.objects.filter(language=self.request.user.language)
+            return Translation.objects.filter(language=self.request.user.language).order_by("word__text")
         return Translation.objects.none()
 
 
@@ -31,7 +51,7 @@ class FavoriteWordViewSet(viewsets.ModelViewSet):
             return FavoriteWord.objects.filter(
                 user=self.request.user,
                 translation__language=self.request.user.language
-            )
+            ).order_by('translation__id')
         return FavoriteWord.objects.none()
 
     def perform_create(self, serializer):
@@ -43,12 +63,21 @@ class FavoriteWordViewSet(viewsets.ModelViewSet):
         else:
             raise serializers.ValidationError("Пользователь не авторизован!")
 
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if instance.user != request.user:
-            return Response({"detail": "У вас нет прав на удаление этого объекта."}, status=403)
-        self.perform_destroy(instance)
-        return Response(status=204)
+    @action(detail=False, methods=['delete'], url_path='delete')
+    def remove_by_translation(self, request):
+        translation_id = request.query_params.get('translation_id')
+        if not translation_id:
+            return Response({"detail": "Необходимо указать translation_id."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            favorite_word = FavoriteWord.objects.get(
+                user=request.user,
+                translation_id=translation_id
+            )
+            favorite_word.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except FavoriteWord.DoesNotExist:
+            return Response({"detail": "Слово не найдено в избранном."}, status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=False, methods=['get'], url_path='check-favorite')
     def check_favorite(self, request):
