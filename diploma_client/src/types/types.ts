@@ -23,6 +23,13 @@ export interface Translation {
   word: Word;
 }
 
+export interface Language {
+  id: number;
+  name: string;
+  flag: string;
+}
+
+
 export interface DictionaryResponse {
   count: number;
   next: string | null;
