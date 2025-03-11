@@ -1,6 +1,11 @@
 import axios from 'axios';
 import { API_URL } from '@/services/baseURL';
-import type {Category, DictionaryResponse, PartOfSpeech} from '@/types/dictionary';
+import type {
+  Category,
+  DictionaryResponse,
+  FavoriteWordResponse,
+  PartOfSpeech
+} from '@/types/types.ts';
 
 export const getWords = async (params: {
   category?: number;
@@ -55,11 +60,30 @@ export const getPartsOfSpeech = async (): Promise<PartOfSpeech[]> => {
   }
 };
 
+export const getFavoriteWords = async (params: {
+  page?: number;
+}): Promise<FavoriteWordResponse> => {
+  try {
+    const response = await axios.get<FavoriteWordResponse>(`${API_URL}/favoriteWords/`, {
+      params: {
+        page: params.page,
+      },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Ошибка при получении избранных слов:', error);
+    throw error;
+  }
+};
+
 export const addToFavorites = async (translationId: number): Promise<void> => {
   try {
     await axios.post(
       `${API_URL}/favoriteWords/`,
-      { translation: translationId },
+      { translation_id: translationId },
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,

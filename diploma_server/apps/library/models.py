@@ -7,7 +7,7 @@ class Book(models.Model):
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=100)
     language = models.ForeignKey(Language, on_delete=models.CASCADE)
-    logo = models.CharField(max_length=255)
+    logo = models.CharField(max_length=1000)
 
     def __str__(self):
         return self.title

@@ -2,12 +2,12 @@ import {defineStore} from 'pinia';
 import {ref} from 'vue';
 import {
   addToFavorites,
-  getCategories,
+  getCategories, getFavoriteWords,
   getPartsOfSpeech,
   getWords,
   removeFromFavorites,
 } from '@/services/dictionaryService';
-import type {Category, PartOfSpeech, Translation} from '@/types/dictionary';
+import type {Category, PartOfSpeech, Translation} from '@/types/types.ts';
 
 export const useDictionaryStore = defineStore('dictionary', () => {
   const translations = ref<Translation[]>([]);
@@ -60,13 +60,19 @@ export const useDictionaryStore = defineStore('dictionary', () => {
     }
   };
 
+  const fetchFavorites = async () => {
+    try {
+      const response = await getFavoriteWords({});
+      favorites.value = response.results.map(fav => fav.translation);
+    } catch (err) {
+      console.error('Ошибка загрузки избранных:', err);
+    }
+  };
+
   const addFavorite = async (translationId: number) => {
     try {
       await addToFavorites(translationId);
-      const translation = translations.value.find((t) => t.id === translationId);
-      if (translation) {
-        favorites.value.push(translation);
-      }
+      await fetchFavorites();
     } catch (err) {
       console.error('Ошибка при добавлении в избранное:', err);
     }
@@ -74,8 +80,8 @@ export const useDictionaryStore = defineStore('dictionary', () => {
 
   const removeFavorite = async (translationId: number) => {
     try {
-      await removeFromFavorites(translationId); // Используем translationId
-      favorites.value = favorites.value.filter((t) => t.id !== translationId);
+      await removeFromFavorites(translationId);
+      await fetchFavorites();
     } catch (err) {
       console.error('Ошибка при удалении из избранного:', err);
     }
@@ -89,6 +95,7 @@ export const useDictionaryStore = defineStore('dictionary', () => {
     await fetchCategories();
     await fetchPartsOfSpeech();
     await fetchWords({});
+    await fetchFavorites();
   };
 
   return {

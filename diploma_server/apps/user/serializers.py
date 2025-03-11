@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import User
 from apps.language.models import Language
+from ..language.serializers import LanguageSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -20,5 +21,18 @@ class UserSerializer(serializers.ModelSerializer):
         )
         return user
 
+
 class LanguageUpdateSerializer(serializers.Serializer):
     language_id = serializers.PrimaryKeyRelatedField(queryset=Language.objects.all())
+
+
+class UserLanguageSerializer(serializers.ModelSerializer):
+    language = LanguageSerializer(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ('language',)
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        return rep['language'] or {}

@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-stone-900">
+  <div class="bg-background-one">
     <router-view />
   </div>
 </template>

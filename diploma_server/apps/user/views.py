@@ -2,7 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .serializers import UserSerializer, LanguageUpdateSerializer
+from .serializers import UserSerializer, LanguageUpdateSerializer, UserLanguageSerializer
+
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -14,6 +15,7 @@ class RegisterView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class LanguageUpdateView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -24,3 +26,11 @@ class LanguageUpdateView(APIView):
             request.user.save()
             return Response({'status': 'User language was updated!'})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LanguageRetrieveView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserLanguageSerializer(request.user)
+        return Response(serializer.data)

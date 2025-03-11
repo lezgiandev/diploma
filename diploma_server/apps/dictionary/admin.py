@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Word, Translation, Collection, PartOfSpeech, WordInCollection
+from .models import Category, Word, Translation, PartOfSpeech
 
 
 @admin.register(Category)
@@ -23,14 +23,3 @@ class TranslationAdmin(admin.ModelAdmin):
     list_display = ('id', 'word', 'language', 'text', 'audio')
     list_filter = ('language',)
     search_fields = ('text', 'word__text')
-
-@admin.register(Collection)
-class CollectionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'description', 'user', 'language', 'is_public')
-    list_filter = ('user', 'is_public')
-    search_fields = ('name',)
-
-@admin.register(WordInCollection)
-class WordInCollectionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'collection', 'translation')
-    list_filter = ('collection', )

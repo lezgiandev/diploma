@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Word, Translation, FavoriteWord, PartOfSpeech, Collection, WordInCollection
+from .models import Category, Word, Translation, FavoriteWord, PartOfSpeech
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -29,36 +29,14 @@ class TranslationSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'audio', 'language', 'word')
 
 class FavoriteWordSerializer(serializers.ModelSerializer):
-    translation = serializers.PrimaryKeyRelatedField(queryset=Translation.objects.all())
+    translation = TranslationSerializer(read_only=True)
+    translation_id = serializers.PrimaryKeyRelatedField(
+        source='translation',
+        queryset=Translation.objects.all(),
+        write_only=True
+    )
 
     class Meta:
         model = FavoriteWord
-        fields = ('id', 'user', 'translation')
-        read_only_fields = ('user', )
-
-class CollectionSerializer(serializers.ModelSerializer):
-    language = serializers.StringRelatedField()
-
-    class Meta:
-        model = Collection
-        fields = ('id', 'name', 'description', 'language', 'is_public')
-
-class WordInCollectionSerializer(serializers.ModelSerializer):
-    translation = serializers.PrimaryKeyRelatedField(queryset=Translation.objects.all())
-
-    class Meta:
-        model = WordInCollection
-        fields = ('id', 'collection', 'translation')
-        read_only_fields = ('collection',)
-
-class AddWordToCollectionSerializer(serializers.Serializer):
-    translation_id = serializers.PrimaryKeyRelatedField(queryset=Translation.objects.all())
-
-    def create(self, validated_data):
-        collection = self.context['collection']
-        translation = validated_data['translation_id']
-        word_in_collection, created = WordInCollection.objects.get_or_create(
-            collection=collection,
-            translation=translation
-        )
-        return word_in_collection
+        fields = ('id', 'user', 'translation', 'translation_id')
+        read_only_fields = ('user', 'translation')

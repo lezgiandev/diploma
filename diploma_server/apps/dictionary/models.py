@@ -43,23 +43,3 @@ class FavoriteWord(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.translation.text}"
-
-class Collection(models.Model):
-    name = models.CharField(max_length=100)
-    description = models.CharField(max_length=255)
-    user = models.ForeignKey('user.User', on_delete=models.CASCADE)
-    language = models.ForeignKey(Language, on_delete=models.CASCADE)
-    is_public = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.name
-
-class WordInCollection(models.Model):
-    collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
-    translation = models.ForeignKey(Translation, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('collection', 'translation')
-
-    def __str__(self):
-        return  f"{self.collection.name} - {self.translation.text}"

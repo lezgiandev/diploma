@@ -18,8 +18,13 @@ class SentenceSerializer(serializers.ModelSerializer):
 
 class FavoriteBookSerializer(serializers.ModelSerializer):
     book = BookSerializer(read_only=True)
+    book_id = serializers.PrimaryKeyRelatedField(
+        source='book',
+        queryset=Book.objects.all(),
+        write_only=True
+    )
 
     class Meta:
         model = FavoriteBook
-        fields = ('id', 'user', 'book')
-        read_only_fields = ('user', )
+        fields = ('id', 'user', 'book', 'book_id')
+        read_only_fields = ('user', 'book')
